@@ -19,7 +19,7 @@ services:
       restart: always
       ports:
         - "1883:1883"
-        - "8080:8080"
+        - "9001:9001"
       volumes:
         - ./data/mqtt/config:/mosquitto/config
         - ./data/mqtt/data:/mosquitto/data
