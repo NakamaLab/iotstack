@@ -2,16 +2,20 @@ version: '3'
 services:
   # InfluxDB (Base de datos de serie de tiempo)
   influxdb:
-    image: arm32v7/influxdb:latest
+    image: influxdb:latest
     container_name: influxdb
     restart: always
     ports:
+       # The API for InfluxDB is served on port 8086
       - "8086:8086"
+      - "8082:8082"
+      # UDP Port
+      - "8089:8089"
     volumes:
-      # Directorio de datos
+      # Mount for influxdb data directory
       - ./data/influxdb/data:/var/lib/influxdb
-      # Configuracion
-      - ./data/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf
+      # Mount for influxdb configuration
+      - ./data/influxdb/config/:/etc/influxdb/
   # Broker de MQTT
   mqtt:
       image: fstehle/rpi-mosquitto

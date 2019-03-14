@@ -5,3 +5,7 @@ NKM Labs IoT Stack son varios contenedores de #Docker para #RaspberryPi que pued
 Inspirado en https://github.com/influxdata/sandbox
 
 Para más detalle, por favor, mira nuestro [blog](http://nakamalabs.info/nkm-labs-iot-stack/).
+
+## CHANGELOG
+### 2019-03
+- Influxdb Latest version
