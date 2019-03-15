@@ -1,6 +1,5 @@
 version: '3'
 services:
-  # InfluxDB (Base de datos de serie de tiempo)
   influxdb:
     image: influxdb:latest
     container_name: influxdb
@@ -16,7 +15,6 @@ services:
       - ./data/influxdb/data:/var/lib/influxdb
       # Mount for influxdb configuration
       - ./data/influxdb/config/:/etc/influxdb/
-  # Broker de MQTT
   mqtt:
       image: fstehle/rpi-mosquitto
       container_name: mqtt
@@ -28,9 +26,8 @@ services:
         - ./data/mqtt/config:/mosquitto/config
         - ./data/mqtt/data:/mosquitto/data
         - ./data/mqtt/log:/mosquitto/log
-  # Telegraf se conecta a MQTT y grava los mensajes en InfluxDB
   telegraf:
-    image: arm32v7/telegraf:1.5.2
+    image: telegraf:latest
     container_name: telegraf
     restart: always
     links:
@@ -38,11 +35,16 @@ services:
       - influxdb
       - mqtt
     volumes:
-      # archivo de configuracion de telegraph (donde esta configurada la conexion a mqtt e influxdb)
-      - ./data/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+      # Mount for telegraf configuration
+      - ./data/telegraf/:/etc/telegraf/
+      # Mount for Docker API access
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - influxdb
       - mqtt
+    environment:
+      HOSTNAME: "telegraf-getting-started"
   grafana:
     image: fg2it/grafana-armhf:v5.0.0-beta4
     container_name: grafana
@@ -60,6 +62,8 @@ services:
     image: arm32v7/chronograf:1.4.0.1
     container_name: chronograf
     restart: always
+    environment:
+      RESOURCES_PATH: "/usr/share/chronograf/resources"
     volumes:
       # Base de datos de chronograf
       - ./data/chronograf/:/var/lib/chronograf/
