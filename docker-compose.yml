@@ -54,9 +54,8 @@ services:
     links:
       - influxdb
     volumes:
-      - ./data/grafana:/var/lib/grafana 
-    environment:
-      - GF_INSTALL_PLUGINS = grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource,natel-influx-admin-panel
+      # sudo mkdir -p ./data/grafanaa; sudo chown 472:472 ./data/grafana
+      - ./data/grafana:/var/lib/grafana
   # chronograf nos permite administrar InfluxDB
   chronograf:
     image: chronograf:latest

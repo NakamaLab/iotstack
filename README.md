@@ -15,12 +15,23 @@ Para más detalle, por favor, mira nuestro [blog](http://nakamalabs.info/nkm-lab
 
 ## Inicio Rapido
 
-Para iniciar: 
+Clonar el repositorio
 ```bash
 git clone https://github.com/NakamaLab/iotstack.git
 cd iotstack
+```
+
+Si el docker host el Linux, hay que darle permisos sino el contenedor queda en un loop de reinicio
+```
+sudo chown 472:472 ./data/grafana
+```
+
+Para iniciar: 
+```bash
 docker-compose up -d
 ```
+
+
 Para detener
 ```bash
 docker-compose stop
