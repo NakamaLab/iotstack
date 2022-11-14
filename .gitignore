@@ -1,0 +1,15 @@
+# Logs
+logs
+*.log
+
+data/**/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Editor
+.idea
+.vscode
