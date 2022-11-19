@@ -161,7 +161,7 @@
             {
               "key": "topic",
               "operator": "=",
-              "value": "/fruta"
+              "value": "/casa/living/temp"
             }
           ]
         }

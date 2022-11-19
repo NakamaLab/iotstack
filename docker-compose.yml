@@ -27,7 +27,7 @@ services:
         - ./data/mqtt/data:/mosquitto/data
         - ./data/mqtt/log:/mosquitto/log
   telegraf:
-    image: telegraf:1.24.3-alpine
+    image: telegraf:1.24.3
     container_name: telegraf
     restart: always
     links:
