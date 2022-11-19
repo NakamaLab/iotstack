@@ -59,6 +59,13 @@ services:
       - './config/grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml'
       - './config/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml'
       - './config/grafana/dashboards/casa.json:/app/dashboards/casa.json'
+  publisher:
+    build:
+      context: ./publisher
+      dockerfile: ./Dockerfile
+    depends_on:
+      - mqtt
+      - telegraf
   # chronograf nos permite administrar InfluxDB
   chronograf:
     image: chronograf:1.9
