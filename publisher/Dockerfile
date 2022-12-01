@@ -3,7 +3,7 @@ FROM python:latest
 
 
 #Labels as key value pair
-LABEL Maintainer="roushan.me17"
+LABEL Maintainer="nakamalabs"
 
 
 # Any working directory can be chosen as per choice like '/' or '/home' etc

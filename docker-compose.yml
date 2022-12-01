@@ -24,6 +24,7 @@ services:
         - "9001:9001"
       volumes:
         - ./config/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+        - ./config/mqtt/dynamic-security.json:/tmp/dynamic-security.json
         - ./data/mqtt/data:/mosquitto/data
         - ./data/mqtt/log:/mosquitto/log
   telegraf:
