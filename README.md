@@ -13,6 +13,10 @@ Para más detalle, por favor, mira nuestro [blog](http://nakamalabs.info/nkm-lab
 - Chronograf Latest version
 - Mosquitto Latest version
 
+## SEGURIDAD
+Esta rama es un intento de agregarle seguridad
+<https://www.chirpstack.io/project/guides/mqtt-authentication/>
+<https://github.com/iegomez/mosquitto-go-auth#passwords-file>
 ## Inicio Rapido
 
 Clonar el repositorio
@@ -26,7 +30,7 @@ Si el docker host el Linux, hay que darle permisos sino el contenedor queda en u
 sudo chown 472:472 ./data/grafana
 ```
 
-Para iniciar: 
+Para iniciar:
 ```bash
 docker-compose up -d
 ```
@@ -37,7 +41,7 @@ Para detener
 docker-compose stop
 ```
 
-Para detener y eliminar imagenes 
+Para detener y eliminar imagenes
 ```bash
 docker-compose down
 ```

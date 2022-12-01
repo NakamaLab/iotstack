@@ -15,18 +15,54 @@ services:
       - ./data/influxdb/data:/var/lib/influxdb
       # Mount for influxdb configuration
       - ./config/influxdb/:/etc/influxdb/
+    healthcheck:
+      test: "curl -f http://localhost:8086/ping"
+      interval: 3s
+      timeout: 10s
+      retries: 5
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=iot
+      - POSTGRES_PASSWORD=9Wa5mPy4Ir3
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data/pgdata
+      - ./config/postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+  pgadmin:
+    privileged: true
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: fruta
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    depends_on:
+        postgres:
+          condition: service_healthy
   mqtt:
-      image: eclipse-mosquitto:latest
+      image: iegomez/mosquitto-go-auth:latest
       container_name: mqtt
       restart: always
       ports:
         - "8883:1883"
         - "9001:9001"
       volumes:
-        - ./config/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
-        - ./config/mqtt/dynamic-security.json:/tmp/dynamic-security.json
+        - ./config/mqtt/mosquitto.conf:/etc/mosquitto/mosquitto.conf
         - ./data/mqtt/data:/mosquitto/data
         - ./data/mqtt/log:/mosquitto/log
+      depends_on:
+        postgres:
+          condition: service_healthy
   telegraf:
     image: telegraf:1.24.3
     container_name: telegraf
