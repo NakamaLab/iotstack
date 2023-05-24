@@ -11,12 +11,6 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
         "type": "dashboard"
       }
     ]
@@ -24,16 +18,15 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P4B5EB7AC8565B06F"
+        "uid": "P5697886F9CA74929"
       },
-      "description": "Temperatura",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -46,14 +39,17 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "hue",
+            "fillOpacity": 18,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "stepBefore",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -66,7 +62,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "dashed+area"
+              "mode": "line"
             }
           },
           "mappings": [],
@@ -78,20 +74,16 @@
                 "value": null
               },
               {
-                "color": "dark-blue",
-                "value": -50
-              },
-              {
-                "color": "green",
-                "value": 0
+                "color": "blue",
+                "value": 13
               },
               {
                 "color": "#EAB839",
-                "value": 30
+                "value": 23
               },
               {
-                "color": "red",
-                "value": 40
+                "color": "dark-red",
+                "value": 33
               }
             ]
           }
@@ -99,12 +91,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "options": {
         "legend": {
           "calcs": [],
@@ -119,58 +111,93 @@
       },
       "targets": [
         {
-          "alias": "LIVING",
           "datasource": {
             "type": "influxdb",
-            "uid": "P4B5EB7AC8565B06F"
+            "uid": "P5697886F9CA74929"
           },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "previous"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "mqtt_consumer",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "topic",
-              "operator": "=",
-              "value": "/casa/living/temp"
-            }
-          ]
+          "query": "from(bucket: \"ope\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> filter(fn: (r) => r[\"host\"] == \"telegraf\")\r\n  |> filter(fn: (r) => r[\"topic\"] == \"/casa/living/temp\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "refId": "A"
         }
       ],
-      "title": "TEMPERATURA",
+      "title": "MQTT Values",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlYlRd"
+          },
+          "decimals": 2,
+          "displayName": "Temp",
+          "mappings": [],
+          "max": 45,
+          "min": -5,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "dark-blue",
+                "value": 13
+              },
+              {
+                "color": "#EAB839",
+                "value": 23
+              },
+              {
+                "color": "dark-red",
+                "value": 32
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
+          "query": "from(bucket: \"ope\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mqtt_consumer\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> filter(fn: (r) => r[\"host\"] == \"telegraf\")\r\n  |> filter(fn: (r) => r[\"topic\"] == \"/casa/living/temp\")\r\n  |> aggregateWindow(every: v.windowPeriod, fn: median, createEmpty: false)\r\n  |> yield(name: \"median\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperatura",
+      "type": "gauge"
     }
   ],
-  "schemaVersion": 37,
+  "refresh": "5s",
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -182,8 +209,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "CASA",
+  "title": "MQTT Values",
   "uid": "kiJWBqD4k",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
