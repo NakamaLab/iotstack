@@ -1,35 +1,43 @@
 version: '3'
 services:
   influxdb:
-    image: influxdb:1.8
-    container_name: influxdb
-    restart: always
+    image: influxdb:2.7-alpine
+    environment:
+      - TZ=America/Buenos_Aires
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=supersecret
+      - DOCKER_INFLUXDB_INIT_ORG=nakama
+      - DOCKER_INFLUXDB_INIT_BUCKET=ope
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+    # - DOCKER_INFLUXDB_INIT_MODE=upgrade
     ports:
-       # The API for InfluxDB is served on port 8086
-      - "8086:8086"
-      - "8082:8082"
-      # UDP Port
-      - "8089:8089"
+      - 8086:8086
     volumes:
-      # Mount for influxdb data directory
-      - ./data/influxdb/data:/var/lib/influxdb
-      # Mount for influxdb configuration
-      - ./config/influxdb/:/etc/influxdb/
+      - influxdb-lib:/var/lib/influxdb2
+    command: influxd --reporting-disabled
   mqtt:
       image: eclipse-mosquitto:latest
       container_name: mqtt
-      restart: always
+      environment:
+        - TZ=America/Buenos_Aires
       ports:
         - "8883:1883"
         - "9001:9001"
+      restart: always
       volumes:
         - ./config/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
         - ./config/mqtt/dynamic-security.json:/tmp/dynamic-security.json
         - ./data/mqtt/data:/mosquitto/data
         - ./data/mqtt/log:/mosquitto/log
   telegraf:
-    image: telegraf:1.24.3
+    image: telegraf:1.26.3-alpine
+    user: telegraf:995 # utilizzar el comando `getent group` para obtener el id del grupo docker
     container_name: telegraf
+    environment:
+      - HOSTNAME=telegraf
+      - TZ=America/Buenos_Aires
     restart: always
     links:
       # Telegraf necesita acceder a InfluxDB y a MQTT
@@ -43,11 +51,12 @@ services:
     depends_on:
       - influxdb
       - mqtt
-    environment:
-      HOSTNAME: "telegraf-getting-started"
+
   grafana:
-    image: grafana/grafana:9.2.4
+    image: grafana/grafana-oss:9.5.2
     container_name: grafana
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-mqtt-datasource
     restart: always
     ports:
       - "3000:3000"
@@ -55,7 +64,8 @@ services:
       - influxdb
     volumes:
       # sudo mkdir -p ./data/grafanaa; sudo chown 472:472 ./data/grafana
-      - './data/grafana/data.db:/app/data.db'
+      - grafana-lib:/var/lib/grafana
+      - grafana-log:/var/log/grafana
       - './config/grafana/grafana.ini:/etc/grafana/grafana.ini'
       - './config/grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml'
       - './config/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml'
@@ -67,19 +77,12 @@ services:
     depends_on:
       - mqtt
       - telegraf
-  # chronograf nos permite administrar InfluxDB
-  chronograf:
-    image: chronograf:1.9
-    container_name: chronograf
-    restart: always
-    environment:
-      RESOURCES_PATH: "/usr/share/chronograf/resources"
-    volumes:
-      # Base de datos de chronograf
-      - ./data/chronograf/:/var/lib/chronograf/
-    links:
-      # Chronograf necesita acceder a InfluxDB
-      - influxdb
-    ports:
-      # UI de chronograf en el puerto 8888
-      - "8888:8888"
+volumes:
+  influxdb-lib:
+    external: false
+
+  grafana-lib:
+    external: false
+
+  grafana-log:
+    external: false
