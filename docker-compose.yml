@@ -87,7 +87,6 @@ services:
       - ./config/cert-gen/certs.sh:/docker-entrypoint.d/certs.sh
   nginx:
     image: nginx:1.24
-    container_name: nginx_container
     ports:
       - 8443:8443
     privileged: true
